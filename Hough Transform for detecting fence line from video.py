@@ -2,9 +2,10 @@ import cv2
 import numpy as np
 import winsound
 import keyboard
+import threading
 
 # Open the video file
-cap = cv2.VideoCapture('//Path for video// fence7.mp4')
+cap = cv2.VideoCapture('C:\\Users\\Patch\\OneDrive\\Desktop\\Hough-Transform-for-detecting-fence-line-from-video\\fence7.mp4')
 
 # Variables to keep track of the previous frame's fence lines
 prev_lines = []
@@ -52,7 +53,7 @@ while cap.isOpened():
                 cv2.line(frame, (x1, y1), (x2, y2), (0, 0, 255), 2)
         else:
             #Save when alert
-            cv2.imwrite("//Path for save image// alert_{}.jpg".format(cap.get(cv2.CAP_PROP_POS_FRAMES)), frame)
+            cv2.imwrite("C:\\Users\\Patch\\OneDrive\\Desktop\\Hough-Transform-for-detecting-fence-line-from-video\\alert\\alert_{}.jpg".format(cap.get(cv2.CAP_PROP_POS_FRAMES)), frame)
             alert_status = True
 
         cv2.putText(frame, "Number of lines: {}".format(num_lines), (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
@@ -76,7 +77,8 @@ while cap.isOpened():
             # Play a sound
             frequency = 2500  # Set frequency to 2500 Hertz
             duration = 10  # Set duration to 10 milliseconds
-            winsound.Beep(frequency, duration)
+            # winsound.Beep(frequency, duration)
+            t2 = threading.Thread(target=winsound.Beep(frequency, duration))
 
         # Stop sound if 's' is pressed
         if keyboard.is_pressed("s"):
