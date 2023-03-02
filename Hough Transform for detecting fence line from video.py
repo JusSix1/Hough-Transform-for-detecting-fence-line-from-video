@@ -3,9 +3,39 @@ import numpy as np
 import winsound
 import keyboard
 import threading
+import requests
+
+def alert_sound():
+    frequency = 2500  # Set frequency to 2500 Hertz
+    duration = 10  # Set duration to 10 milliseconds
+    winsound.Beep(frequency, duration)
+
+def alert_image_Line(file):
+    global access_token
+    url = "https://notify-api.line.me/api/notify"
+    headers = {
+        "Authorization": "Bearer " + access_token
+    }
+    data = ({
+        'message':'Someone crossing the fence'
+    })
+    r=requests.post(url, headers=headers, files=file, data=data)
+
+def send_line_notify(message, access_token):
+    url = "https://notify-api.line.me/api/notify"
+    headers = {
+        "Authorization": "Bearer " + access_token
+    }
+    payload = {
+        "message": message
+    }
+    res = requests.post(url, headers=headers, data=payload)
+    return res
+
+access_token = "-" #My token 
 
 # Open the video file
-cap = cv2.VideoCapture('C:\\Users\\Patch\\OneDrive\\Desktop\\Hough-Transform-for-detecting-fence-line-from-video\\fence7.mp4')
+cap = cv2.VideoCapture('-\\fence7.mp4')
 
 # Variables to keep track of the previous frame's fence lines
 prev_lines = []
@@ -13,6 +43,8 @@ prev_num_lines = 0
 
 # Variables to keep alert status
 alert_status = False
+
+alert_count = 0
 
 while cap.isOpened():
     # Read a frame from the video
@@ -51,10 +83,14 @@ while cap.isOpened():
                 x2 = int(x0 - 1000*(-b))
                 y2 = int(y0 - 1000*(a))
                 cv2.line(frame, (x1, y1), (x2, y2), (0, 0, 255), 2)
+                alert_count = 0
         else:
             #Save when alert
-            cv2.imwrite("C:\\Users\\Patch\\OneDrive\\Desktop\\Hough-Transform-for-detecting-fence-line-from-video\\alert\\alert_{}.jpg".format(cap.get(cv2.CAP_PROP_POS_FRAMES)), frame)
+            cv2.imwrite("-\\alert_{}.jpg".format(cap.get(cv2.CAP_PROP_POS_FRAMES)), frame)
             alert_status = True
+            if alert_status and alert_count == 0:
+                alert_count = 1
+
 
         cv2.putText(frame, "Number of lines: {}".format(num_lines), (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
 
@@ -74,11 +110,15 @@ while cap.isOpened():
             break
 
         if alert_status:
-            # Play a sound
-            frequency = 2500  # Set frequency to 2500 Hertz
-            duration = 10  # Set duration to 10 milliseconds
-            # winsound.Beep(frequency, duration)
-            t2 = threading.Thread(target=winsound.Beep(frequency, duration))
+            t1 = threading.Thread(target=alert_sound())
+            t1.start()
+            
+        if alert_count == 1:
+            file = {'imageFile':open("-\\alert_{}.jpg".format(cap.get(cv2.CAP_PROP_POS_FRAMES)),'rb')}
+            t2 = threading.Thread(target=alert_image_Line(file))
+            t2.start()
+            alert_count = 3
+
 
         # Stop sound if 's' is pressed
         if keyboard.is_pressed("s"):
