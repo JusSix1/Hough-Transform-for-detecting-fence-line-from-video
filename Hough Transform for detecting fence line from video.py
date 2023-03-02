@@ -21,17 +21,6 @@ def alert_image_Line(file):
     })
     r=requests.post(url, headers=headers, files=file, data=data)
 
-def send_line_notify(message, access_token):
-    url = "https://notify-api.line.me/api/notify"
-    headers = {
-        "Authorization": "Bearer " + access_token
-    }
-    payload = {
-        "message": message
-    }
-    res = requests.post(url, headers=headers, data=payload)
-    return res
-
 access_token = "-" #My token 
 
 # Open the video file
@@ -114,7 +103,7 @@ while cap.isOpened():
             t1.start()
             
         if alert_count == 1:
-            file = {'imageFile':open("-\\alert_{}.jpg".format(cap.get(cv2.CAP_PROP_POS_FRAMES)),'rb')}
+            file = {'imageFile':open("-\\alert\\alert_{}.jpg".format(cap.get(cv2.CAP_PROP_POS_FRAMES)),'rb')}
             t2 = threading.Thread(target=alert_image_Line(file))
             t2.start()
             alert_count = 3
