@@ -1,3 +1,5 @@
 # Hough-Transform-for-detecting-fence-line-from-video
 
-Chang path BEFORE run
+Check path BEFORE run!!!
+
+Using Your Token Line Notify!!
